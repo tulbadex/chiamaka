@@ -68,12 +68,16 @@ class ProfileController extends Controller
         // C:/Users/Tulbadex/Downloads/Firefox_Screenshot_2021-06-13T05-51-27.084Z.png
 
         $profileImage = $request->hasFile('profileImage');
+        $oldImage = $user->profiles()->first();
 
         if($profileImage){
             $image = $request->file('profileImage');
             $imageName = time(). $image->getClientOriginalName();
             $location = public_path('profile/images/');
             $request->profileImage->move($location, $imageName);
+            if(file_exists($location.$oldImage->profileImage)){
+                @unlink($location.$oldImage->profileImage);
+            }
 
         }else{
             $imageName = "";
@@ -94,6 +98,9 @@ class ProfileController extends Controller
         ]);
 
         if($user->profiles()->exists()){
+            // $oldImage = $user::with('profiles')->first();
+            /* 'oldImage' => $oldImage->profiles->profileImage,
+               'oldImage1' => $oldImage1->profileImage, */
             $user->profiles()->update([
                 'profileImage' => $imageName,
                 'nameOfOrganization' => $request->nameOfOrganization,
@@ -119,7 +126,7 @@ class ProfileController extends Controller
                 'nameOfOrganization' => $request->nameOfOrganization,
                 'organizationEmail' => $request->organizationEmail,
                 'phoneNumber' => $request->phoneNumber,
-                'profileImage' => $imageName,
+                'profileImage' => $imageName
             ]
         ];
 
