@@ -59,7 +59,7 @@ class ProfileController extends Controller
             'FirstName' => 'required|string|max:255',
             'LastName' => 'required|string|max:255',
             'email' => 'required|string|max:255',
-            'profileImage' => 'image|mimes:jpeg, png, gif, svg, max:2048',
+            'profileImage' => 'image|mimes:jpeg,png,gif,svg|max:2048',
             'user_type' => 'string|max:255',
             'nameOfOrganization' => 'string|max:255',
             'organizationEmail' => 'string|max:255',
