@@ -73,7 +73,7 @@ class ProfileController extends Controller
             $image = $request->file('profileImage');
             $imageName = time(). $image->getClientOriginalName();
             $location = public_path('profile/images/');
-            $profileImage->move($location, $imageName);
+            $request->profileImage->move($location, $imageName);
 
         }else{
             $imageName = "";
