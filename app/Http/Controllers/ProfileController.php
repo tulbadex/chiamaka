@@ -118,7 +118,8 @@ class ProfileController extends Controller
                 'user_type' => $request->user_type,
                 'nameOfOrganization' => $request->nameOfOrganization,
                 'organizationEmail' => $request->organizationEmail,
-                'phoneNumber' => $request->phoneNumber
+                'phoneNumber' => $request->phoneNumber,
+                'profileImage' => $imageName,
             ]
         ];
 
