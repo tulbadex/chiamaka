@@ -53,9 +53,9 @@ class ProfileController extends Controller
         // $user = Auth::user()->has('profile')->with('profile')->first();
 
         // $email = Auth::User()->email;
-        $user = User::find($id);
+        $user = User::findorFail($id);
 
-        $request->validate([
+        $fields = $request->validate([
             'FirstName' => 'required|string|max:255',
             'LastName' => 'required|string|max:255',
             'email' => 'required|string|max:255',
@@ -65,61 +65,64 @@ class ProfileController extends Controller
             'organizationEmail' => 'string|max:255',
             'phoneNumber' => 'string|max:255'
         ]);
+        // C:/Users/Tulbadex/Downloads/Firefox_Screenshot_2021-06-13T05-51-27.084Z.png
 
+        $profileImage = $request->hasFile('profileImage');
 
-        $data = [];
-        if($user){
-            $profileImage = $request->file('profileImage');
+        if($profileImage){
+            $image = $request->file('profileImage');
+            $imageName = time(). $image->getClientOriginalName();
+            $location = public_path('profile/images/');
+            $profileImage->move($location, $imageName);
 
-            if($profileImage){
-                $destinationPath ='/public/profile/images';
-                $imageName = time(). $profileImage->getClientOriginalName();
-                $profileImage->move($destinationPath, $imageName);
-            }
-
-            if($user->profile->exist()){
-                $data = $user->profile->update([
-                    'profileImage' => $request->$imageName,
-                    'nameOfOrganization' => $request->nameOfOrganization,
-                    'organizationEmail' => $request->organizationEmail,
-                    'phoneNumber' => $request->phoneNumber
-                ]);
-            }else{
-                $data = User::create([
-                    'FirstName' => $request->$user->FirstName,
-                    'LastName' => $request->$user->LastName,
-                    'email' => $request->$user->email,
-                    'user_type' => $request->user_type
-                ]);
-
-                $data = Profile::create([
-                    'profileImage' => $imageName,
-                    'nameOfOrganization' => $request->nameOfOrganization,
-                    'organizationEmail' => $request->organizationEmail,
-                    'phoneNumber' => $request->phoneNumber
-                ]);
-            }
+        }else{
+            $imageName = "";
         }
 
-            /* $user->update([
-                'FirstName' => $request->FirstName,
+        /* $updateUser = $user->update([
+            "FirstName" => $fields['FirstName'],
+            "LastName" => $fields['LastName'],
+            "email" => $fields['email'],
+            "user_type" => "parent"
+        ]); */
+
+        $user->update([
+            "FirstName" => $request->FirstName,
+            "LastName" => $request->LastName,
+            "email" => $request->email,
+            "user_type" => $request->user_type
+        ]);
+
+        if($user->profiles()->exists()){
+            $user->profiles()->update([
+                'profileImage' => $imageName,
+                'nameOfOrganization' => $request->nameOfOrganization,
+                'organizationEmail' => $request->organizationEmail,
+                'phoneNumber' => $request->phoneNumber
+            ]);
+        }else{
+            $user->profiles()->create([
+                'profileImage' => $imageName,
+                'nameOfOrganization' => $request->nameOfOrganization,
+                'organizationEmail' => $request->organizationEmail,
+                'phoneNumber' => $request->phoneNumber
+            ]);
+        }
+
+
+        $response = [
+            'user' => [
+                'FirstName' =>$request->FirstName,
                 'LastName' => $request->LastName,
                 'email' => $request->email,
-                'user_type' => $request->email
-            ]); */
+                'user_type' => $request->user_type,
+                'nameOfOrganization' => $request->nameOfOrganization,
+                'organizationEmail' => $request->organizationEmail,
+                'phoneNumber' => $request->phoneNumber
+            ]
+        ];
 
-            /* $data = [
-                'FirstName' => $user->FirstName,
-                'LastName' => $user->LastName,
-                'email' => $user->email,
-                'profileImage' => $profile->profileImage,
-                'user_type' => $profile->user_type,
-                'nameOfOrganization' => $profile->nameOfOrganization,
-                'organizationEmail' => $profile->organizationEmail,
-                'phoneNumber' => $profile->phoneNumber
-            ]; */
-
-            return response()->json($data, 201);
+            return response()->json($response, 201);
         // else{
         //     return response()->json($data, 401);
         // }
